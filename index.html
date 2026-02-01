@@ -102,6 +102,16 @@
             --shadow-color: rgba(255, 0, 0, 0.6);
         }
 
+        [data-theme='nokia'] { /* Nokia Brick - Dimmed Version */
+            --bg-color: #9cbda7; /* Darker, softer green (less blinding) */
+            --card-bg: #8ba895;  /* Slightly darker card background */
+            --text-main: #2b362a; /* Stronger dark text for contrast */
+            --text-dim: #4a5c4b;
+            --accent-color: #1a211a;
+            --border-color: #3e4d3d;
+            --shadow-color: rgba(67, 82, 61, 0.0); /* No glow for Nokia */
+        }
+
         body {
             background-color: var(--bg-color);
             color: var(--text-main);
@@ -110,7 +120,7 @@
             transition: all 0.5s ease;
         }
 
-        /* --- CRT EFFECT --- */
+        /* --- CRT EFFECT (Reduced - No Scanline) --- */
         .crt::before {
             content: " ";
             display: block;
@@ -120,22 +130,16 @@
             z-index: 999;
             background-size: 100% 2px, 3px 100%;
             pointer-events: none;
+            opacity: 0.5; /* Reduced opacity for better visibility */
+        }
+        
+        /* Disable CRT effect for Nokia theme to keep it clean */
+        [data-theme='nokia'] .crt::before {
+            display: none;
         }
 
         .glow-text { text-shadow: 0 0 5px var(--shadow-color), 0 0 10px var(--shadow-color); }
         .box-glow { box-shadow: 0 0 10px var(--shadow-color), inset 0 0 5px var(--shadow-color); }
-
-        .scan-line {
-            width: 100%;
-            height: 5px;
-            background: rgba(255,255,255,0.1);
-            position: absolute;
-            z-index: 998;
-            top: 0;
-            animation: scan 6s linear infinite;
-            pointer-events: none;
-        }
-        @keyframes scan { 0% { top: -5%; } 100% { top: 105%; } }
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -144,7 +148,6 @@
     </style>
 </head>
 <body class="crt h-screen w-screen selection:bg-theme-accent selection:text-theme-bg">
-    <div class="scan-line"></div>
     <div id="root" class="h-full w-full relative z-10"></div>
 
     <script type="text/babel">
@@ -166,6 +169,7 @@
             { id: 'synthwave', name: 'SYNTHWAVE', color: '#4285f4' },
             { id: 'icenet', name: 'ICE NET', color: '#00d8ff' },
             { id: 'crimson', name: 'CRIMSON OS', color: '#ff0000' },
+            { id: 'nokia', name: 'BRICK PHONE', color: '#43523d' },
         ];
 
         // --- UTILS ---
@@ -209,7 +213,7 @@
                                             ${current === t.id ? 'bg-theme-accent text-theme-bg' : 'text-theme-text hover:bg-theme-dim/20'}`}
                                     >
                                         <span className="group-hover:translate-x-1 transition-transform">{t.name}</span>
-                                        <div className="w-2 h-2" style={{background: t.color}}></div>
+                                        <div className="w-2 h-2 rounded-full border border-theme-dim" style={{background: t.color}}></div>
                                     </button>
                                 ))}
                             </div>
@@ -232,7 +236,7 @@
 
             return (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-                    <div className="bg-theme-bg border-2 border-theme-accent p-6 w-full max-w-sm relative box-glow animate-scan">
+                    <div className="bg-theme-bg border-2 border-theme-accent p-6 w-full max-w-sm relative box-glow">
                         <button onClick={onClose} className="absolute top-2 right-2 text-theme-dim hover:text-red-500">X</button>
                         <h3 className="text-xl font-head text-theme-accent mb-2 glow-text">تصدير البيانات</h3>
                         <p className="text-xs text-theme-dim font-mono mb-4">انسخ الكود وأرسله لصديقك لاستيراد الجدول.</p>
@@ -369,7 +373,7 @@
                         </div>
                     </div>
                     {isExpanded && (
-                        <div className="p-4 border-t border-theme-dim/30 animate-scan">
+                        <div className="p-4 border-t border-theme-dim/30">
                             {day.exercises.map(ex => (
                                 <ExerciseCard 
                                     key={ex.id} 
@@ -556,5 +560,3 @@
     </script>
 </body>
 </html>
-
-
