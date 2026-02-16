@@ -13,7 +13,7 @@
     
     <!-- Icons -->
     <link rel="icon" href="app-icon.png">
-    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="apple-touch-icon" href="app-icon.png">
 
     <!-- React Libraries -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
@@ -92,24 +92,24 @@
             --shadow-color: rgba(0, 216, 255, 0.5);
         }
 
-        [data-theme='crimson'] { /* Red Alert */
-            --bg-color: #050000;
-            --card-bg: #1a0505;
-            --text-main: #ffcccc;
-            --text-dim: #800000;
-            --accent-color: #ff0000;
-            --border-color: #400000;
-            --shadow-color: rgba(255, 0, 0, 0.6);
+        [data-theme='blackops'] { /* Black Ops 2 (Orange/Black) */
+            --bg-color: #080808;
+            --card-bg: #141414;
+            --text-main: #e0e0e0;
+            --text-dim: #8a5a2b;
+            --accent-color: #ff9000;
+            --border-color: #553000;
+            --shadow-color: rgba(255, 144, 0, 0.4);
         }
 
         [data-theme='nokia'] { /* Nokia Brick - Dimmed Version */
-            --bg-color: #9cbda7; /* Darker, softer green (less blinding) */
-            --card-bg: #8ba895;  /* Slightly darker card background */
-            --text-main: #2b362a; /* Stronger dark text for contrast */
+            --bg-color: #9cbda7;
+            --card-bg: #8ba895;
+            --text-main: #2b362a;
             --text-dim: #4a5c4b;
             --accent-color: #1a211a;
             --border-color: #3e4d3d;
-            --shadow-color: rgba(67, 82, 61, 0.0); /* No glow for Nokia */
+            --shadow-color: rgba(67, 82, 61, 0.0);
         }
 
         body {
@@ -130,13 +130,10 @@
             z-index: 999;
             background-size: 100% 2px, 3px 100%;
             pointer-events: none;
-            opacity: 0.5; /* Reduced opacity for better visibility */
+            opacity: 0.5;
         }
         
-        /* Disable CRT effect for Nokia theme to keep it clean */
-        [data-theme='nokia'] .crt::before {
-            display: none;
-        }
+        [data-theme='nokia'] .crt::before { display: none; }
 
         .glow-text { text-shadow: 0 0 5px var(--shadow-color), 0 0 10px var(--shadow-color); }
         .box-glow { box-shadow: 0 0 10px var(--shadow-color), inset 0 0 5px var(--shadow-color); }
@@ -161,6 +158,9 @@
         const IconShare = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>;
         const IconDownload = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>;
         const IconCopy = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>;
+        const IconArrowUp = ({size=18}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square"><polyline points="18 15 12 9 6 15"/></svg>;
+        const IconArrowDown = ({size=18}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square"><polyline points="6 9 12 15 18 9"/></svg>;
+        const IconChevronDown = ({size=20, className}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square" className={className}><polyline points="6 9 12 15 18 9"/></svg>;
 
         // --- THEME DATA ---
         const THEMES = [
@@ -168,14 +168,13 @@
             { id: 'terminal', name: 'TERMINAL 84', color: '#00ff41' },
             { id: 'synthwave', name: 'SYNTHWAVE', color: '#4285f4' },
             { id: 'icenet', name: 'ICE NET', color: '#00d8ff' },
-            { id: 'crimson', name: 'CRIMSON OS', color: '#ff0000' },
+            { id: 'blackops', name: 'BLACK OPS II', color: '#ff9000' },
             { id: 'nokia', name: 'BRICK PHONE', color: '#43523d' },
         ];
 
         // --- UTILS ---
         const generateId = () => Math.random().toString(36).substr(2, 9);
         
-        // Data Encoding for Sharing
         const encodeSplit = (split) => {
             const json = JSON.stringify(split);
             return btoa(unescape(encodeURIComponent(json)));
@@ -300,8 +299,8 @@
             );
         };
 
-        // 4. Exercise Card
-        const ExerciseCard = ({ exercise, onChange, onDelete }) => {
+        // 4. Exercise Card (With Reorder Buttons)
+        const ExerciseCard = ({ exercise, onChange, onDelete, onMoveUp, onMoveDown, isFirst, isLast }) => {
             const adjustWeight = (delta) => {
                 const current = parseFloat(exercise.weight) || 0;
                 onChange({ ...exercise, weight: Math.max(0, current + delta) });
@@ -312,10 +311,29 @@
                     <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-theme-dim group-hover:border-theme-accent"></div>
                     <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-theme-dim group-hover:border-theme-accent"></div>
 
-                    <div className="flex justify-between items-start mb-4 gap-3">
-                         <button onClick={onDelete} className="text-theme-dim hover:text-red-500 pt-1">
-                            <IconTrash size={16} />
-                        </button>
+                    <div className="flex justify-between items-center mb-4 gap-3">
+                         <div className="flex gap-1 items-center">
+                             <button onClick={onDelete} className="text-theme-dim hover:text-red-500 p-1">
+                                <IconTrash size={16} />
+                            </button>
+                             <div className="flex flex-col border-r border-theme-dim/30 pr-1 mr-1">
+                                <button 
+                                    onClick={onMoveUp} 
+                                    disabled={isFirst}
+                                    className={`text-theme-dim p-0.5 ${isFirst ? 'opacity-30 cursor-not-allowed' : 'hover:text-theme-accent'}`}
+                                >
+                                    <IconArrowUp size={14} />
+                                </button>
+                                <button 
+                                    onClick={onMoveDown} 
+                                    disabled={isLast}
+                                    className={`text-theme-dim p-0.5 ${isLast ? 'opacity-30 cursor-not-allowed' : 'hover:text-theme-accent'}`}
+                                >
+                                    <IconArrowDown size={14} />
+                                </button>
+                             </div>
+                         </div>
+                        
                         <input 
                             value={exercise.name}
                             onChange={(e) => onChange({...exercise, name: e.target.value})}
@@ -354,12 +372,27 @@
             );
         };
 
-        // 5. Day Accordion
+        // 5. Day Accordion (With Collapse & Reorder Logic)
         const DayAccordion = ({ day, isExpanded, onToggle, onUpdate, onDeleteDay }) => {
+            
+            const moveExercise = (index, direction) => {
+                const newExercises = [...day.exercises];
+                const targetIndex = index + direction;
+                
+                if (targetIndex >= 0 && targetIndex < newExercises.length) {
+                    // Swap
+                    [newExercises[index], newExercises[targetIndex]] = [newExercises[targetIndex], newExercises[index]];
+                    onUpdate({...day, exercises: newExercises});
+                }
+            };
+
             return (
                 <div className={`border-l-2 transition-all duration-300 mb-6 ${isExpanded ? 'border-theme-accent bg-theme-accent/5' : 'border-theme-dim bg-transparent'}`}>
                     <div onClick={onToggle} className="p-4 flex justify-between items-center cursor-pointer hover:bg-theme-dim/10">
-                        <div className="flex-1">
+                        <div className="flex-1 flex items-center gap-2">
+                            <div className={`transition-transform duration-300 ${isExpanded ? 'rotate-180 text-theme-accent' : 'text-theme-dim'}`}>
+                                <IconChevronDown size={18} />
+                            </div>
                             <input 
                                 value={day.name}
                                 onClick={(e) => e.stopPropagation()}
@@ -372,12 +405,18 @@
                             {day.exercises.length} <span className="text-theme-dim">تمارين</span>
                         </div>
                     </div>
-                    {isExpanded && (
+                    
+                    {/* Collapsible Content */}
+                    <div className={`overflow-hidden transition-all duration-300 ${isExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'}`}>
                         <div className="p-4 border-t border-theme-dim/30">
-                            {day.exercises.map(ex => (
+                            {day.exercises.map((ex, idx) => (
                                 <ExerciseCard 
                                     key={ex.id} 
-                                    exercise={ex} 
+                                    exercise={ex}
+                                    isFirst={idx === 0}
+                                    isLast={idx === day.exercises.length - 1}
+                                    onMoveUp={() => moveExercise(idx, -1)}
+                                    onMoveDown={() => moveExercise(idx, 1)}
                                     onChange={(u) => onUpdate({...day, exercises: day.exercises.map(e => e.id === u.id ? u : e)})} 
                                     onDelete={() => onUpdate({...day, exercises: day.exercises.filter(e => e.id !== ex.id)})}
                                 />
@@ -397,7 +436,7 @@
                                 </button>
                             </div>
                         </div>
-                    )}
+                    </div>
                 </div>
             );
         };
@@ -406,19 +445,15 @@
         const MainView = ({ splits, onCreate, onEdit, onDelete, onShare, onImportOpen }) => (
             <div className="h-full flex flex-col relative">
                 <header className="p-6 border-b-2 border-theme-dim flex items-center justify-start bg-theme-bg/90 backdrop-blur z-20 sticky top-0">
-                    {/* Header Content Grouped on the Right Side */}
                     <div className="flex items-center gap-4">
                         <h2 className="text-2xl font-head font-bold text-theme-text glow-text">
                             جداولي <span className="text-theme-accent blink">_</span>
                         </h2>
                         
-                        {/* Import Button Moved Here */}
                         <button onClick={onImportOpen} className="text-theme-dim hover:text-theme-accent flex items-center gap-1 font-arabic text-xs border border-theme-dim px-2 py-1 rounded hover:border-theme-accent transition-colors">
                             <IconDownload size={14} /> استيراد
                         </button>
                     </div>
-                    
-                    {/* The left side is now empty for the absolute Theme Menu */}
                 </header>
 
                 <div className="flex-1 overflow-y-auto no-scrollbar p-6 pb-24">
@@ -469,6 +504,9 @@
             // Share/Import States
             const [sharingSplit, setSharingSplit] = useState(null);
             const [showImport, setShowImport] = useState(false);
+            
+            // Expanded Days State: { [dayId]: boolean }
+            const [expandedDays, setExpandedDays] = useState({});
 
             useEffect(() => {
                 document.body.setAttribute('data-theme', theme);
@@ -491,6 +529,24 @@
                 alert('تم استيراد الجدول بنجاح!');
             };
 
+            // Helper to initialize expanded state when entering editor
+            const openEditor = (id) => {
+                setActiveSplitId(id);
+                setView('EDITOR');
+                // جعل الافتراضي أن تكون جميع الأيام مطوية (فارغة)
+                setExpandedDays({});
+            };
+            
+            const handleCreateSplit = () => {
+                const newId = generateId();
+                const newSplit = {id: newId, name: 'جدول جديد', days:[]};
+                setSplits([...splits, newSplit]);
+                // For new split, nothing to expand initially
+                setActiveSplitId(newId);
+                setView('EDITOR');
+                setExpandedDays({});
+            }
+
             return (
                 <div className="h-full w-full relative">
                     <ThemeMenu current={theme} onChange={setTheme} />
@@ -502,13 +558,8 @@
                     {view === 'LIST' && (
                         <MainView 
                             splits={splits}
-                            onCreate={() => {
-                                const newId = generateId();
-                                setSplits([...splits, {id: newId, name: 'جدول جديد', days:[]}]);
-                                setActiveSplitId(newId);
-                                setView('EDITOR');
-                            }}
-                            onEdit={(id) => { setActiveSplitId(id); setView('EDITOR'); }}
+                            onCreate={handleCreateSplit}
+                            onEdit={openEditor}
                             onDelete={(id) => setSplits(splits.filter(s => s.id !== id))}
                             onShare={(split) => setSharingSplit(split)}
                             onImportOpen={() => setShowImport(true)}
@@ -532,8 +583,8 @@
                                 {activeSplit.days.map(day => (
                                     <DayAccordion 
                                         key={day.id} day={day}
-                                        isExpanded={true} 
-                                        onToggle={() => {}}
+                                        isExpanded={!!expandedDays[day.id]} 
+                                        onToggle={() => setExpandedDays(prev => ({...prev, [day.id]: !prev[day.id]}))}
                                         onDeleteDay={() => setSplits(splits.map(s => s.id === activeSplitId ? {...s, days: s.days.filter(d => d.id !== day.id)} : s))}
                                         onUpdate={(updatedDay) => setSplits(splits.map(s => s.id === activeSplitId ? {...s, days: s.days.map(d => d.id === updatedDay.id ? updatedDay : d)} : s))}
                                     />
@@ -541,7 +592,10 @@
                                 <button 
                                     onClick={() => {
                                         const nextDayNum = activeSplit.days.length + 1;
-                                        setSplits(splits.map(s => s.id === activeSplitId ? {...s, days: [...s.days, {id: generateId(), name: `اليوم ${nextDayNum}`, exercises: []}]} : s))
+                                        const newDayId = generateId();
+                                        setSplits(splits.map(s => s.id === activeSplitId ? {...s, days: [...s.days, {id: newDayId, name: `اليوم ${nextDayNum}`, exercises: []}]} : s));
+                                        // Auto expand new day
+                                        setExpandedDays(prev => ({...prev, [newDayId]: true}));
                                     }}
                                     className="w-full py-4 border border-dashed border-theme-dim text-theme-dim hover:border-theme-accent hover:text-theme-accent font-arabic font-bold mt-4 transition-colors"
                                 >
